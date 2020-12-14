@@ -1,15 +1,21 @@
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Implements the lexical elements of the Jack grammar.
  * - Advancing the input one token at a time.
  * - Getting the value and type of the current token
  * - Ignoring white space
+ * Output <, >, ", and & as &lt, &gt, &quot, and &amp since they have special meaning in XML
  */
 public class JackTokenizer {
+    FileReader inputFile;
+    FileWriter outputFile;
 
     public JackTokenizer(FileReader inputFile, FileWriter outputFile) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
     }
 
     /**
@@ -23,8 +29,10 @@ public class JackTokenizer {
      * Gets the next token from the input, and makes it the current token.
      * Should be called only if hasMoreTokens() is true.
      */
-    public void advance() {
-
+    public void advance() throws IOException {
+        outputFile.write("<tokens>\n");
+        outputFile.write("</tokens>\n");
+        outputFile.close();
     }
 
     /**
