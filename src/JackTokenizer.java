@@ -1,4 +1,5 @@
 import java.io.FileReader;
+import java.io.FileWriter;
 
 /**
  * Implements the lexical elements of the Jack grammar.
@@ -8,7 +9,7 @@ import java.io.FileReader;
  */
 public class JackTokenizer {
 
-    public JackTokenizer(FileReader inputFile) {
+    public JackTokenizer(FileReader inputFile, FileWriter outputFile) {
     }
 
     /**
