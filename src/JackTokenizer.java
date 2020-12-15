@@ -19,9 +19,6 @@ public class JackTokenizer {
 
     String currentToken;
 
-    private static final List<String> KEYWORDS = Arrays.asList("class", "method", "function", "constructor", "int", "boolean", "char",
-            "void", "var", "static", "field", "let", "do", "if", "else", "while", "return", "true", "false", "null", "this");
-
     public JackTokenizer(FileReader inputFile, FileWriter outputFile) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
@@ -29,13 +26,7 @@ public class JackTokenizer {
     }
 
     /**
-     * @return true if there are more tokens in the input.
-     */
-    public boolean hasMoreTokens() {
-        return scanner.hasNextLine();
-    }
-
-    /**
+     * Groups characters into tokens and finds type of token.
      * Gets the next token from the input, and makes it the current token.
      * Should be called only if hasMoreTokens() is true.
      */
@@ -51,7 +42,7 @@ public class JackTokenizer {
             // ignore empty lines and begining comments
             if (!line.isEmpty() && !line.substring(0, 1).contains("/")) {
                 Scanner scanLine = new Scanner(line);
-                // Loop through line
+                // Loop through chars in line and group them into tokens
                 while (scanLine.hasNext()) {
                     String word = scanLine.next();
 
@@ -68,13 +59,21 @@ public class JackTokenizer {
         outputFile.close();
     }
 
+
+    /**
+     * @return true if there are more tokens in the input.
+     */
+    private boolean hasMoreTokens() {
+        return scanner.hasNextLine();
+    }
+
     /**
      * @return the type of the current token.
      */
-    public String tokenType() {
-        if (KEYWORDS.contains(currentToken)) {
+    private String tokenType() {
+        if (keyWords().contains(currentToken)) {
             return "keyword";
-        } else if (false){
+        } else if (false) {
             return "symbol, identifier, int_const, string_const";
         } else {
             return "";
@@ -82,13 +81,13 @@ public class JackTokenizer {
     }
 
     /**
+     * @return a list with all keywords
+     * <p>
      * Should be only called if tokenType is KEYWORD
-     *
-     * @return the keyword which is the current token.
      */
-    public String keyWord() {
-        return "CLASS, METHOD, FUNCTION, CONSTRUCTOR, INT, BOOLEAN, CHAR, VOID, VAR, STATIC, FIELD," +
-                "LET, DO, IF, ELSE, WHILE, RETURN, TRUE, FALSE, NULL THIS";
+    private List<String> keyWords() {
+        return Arrays.asList("class", "method", "function", "constructor", "int", "boolean", "char", "void", "var",
+                "static", "field", "let", "do", "if", "else", "while", "return", "true", "false", "null", "this");
     }
 
     /**
@@ -96,7 +95,7 @@ public class JackTokenizer {
      *
      * @return the character which is the current token.
      */
-    public char symbol() {
+    private char symbol() {
         return ' ';
     }
 
@@ -105,7 +104,7 @@ public class JackTokenizer {
      *
      * @return the identifier which is the current token.
      */
-    public String identifier() {
+    private String identifier() {
         return "";
     }
 
@@ -114,7 +113,7 @@ public class JackTokenizer {
      *
      * @return the integer value of the current token.
      */
-    public int intVal() {
+    private int intVal() {
         return 0;
     }
 
@@ -123,7 +122,7 @@ public class JackTokenizer {
      *
      * @return the string value of the current token, without the two double quotes.
      */
-    public String stringVal() {
+    private String stringVal() {
         return "";
     }
 }
