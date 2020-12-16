@@ -39,10 +39,9 @@ public class JackTokenizer {
             if (line.contains("//") && line.length() != 2) {
                 line = line.split("//")[0];   // take only part before comment
             }
-            // ignore empty lines and begining comments
+            // ignore empty lines and beginning comments
             if (!line.isEmpty() && !line.substring(0, 1).contains("/")) {
                 // Loop through all chars in line
-                // System.out.println(line);
                 currentToken = "";
                 for (int i = 0; i < line.length(); i++) {
                     char currentChar = line.charAt(i);
@@ -80,7 +79,7 @@ public class JackTokenizer {
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
-                    } else if (currentToken.trim().length() > 1 && currentToken.trim().charAt(0) == '"' && currentChar == '"') {
+                    } else if (isStringVal() && currentChar == '"') {
                         outputFile.write("<" + tokenType() + ">");
                         outputFile.write(currentToken.trim());
                         outputFile.write("</" + tokenType() + ">");
@@ -94,9 +93,7 @@ public class JackTokenizer {
                             outputFile.write("</" + tokenType() + ">");
                             outputFile.write("\n");
                             currentToken = "";
-                        } // Identifier
-                        else {
-                            // TODO Identifier must start with a letter or underscore
+                        } else if (isIdentifier()) {
                             outputFile.write("<" + tokenType() + ">");
                             outputFile.write(currentToken.trim());
                             outputFile.write("</" + tokenType() + ">");
@@ -130,7 +127,7 @@ public class JackTokenizer {
             return "symbol";
         } else if (isIntVal()) {
             return "integerConstant";
-        } else if (currentToken.trim().charAt(0) == '"' && currentToken.trim().charAt(currentToken.trim().length() - 1) == '"') {
+        } else if (isStringVal()) {
             return "stringConstant";
         } else {
             return "identifier";
@@ -158,18 +155,27 @@ public class JackTokenizer {
     }
 
     /**
+     * @return true if the current token is a valid identifier. Identifier must start with a letter or underscore.
+     * <p>
      * Should be called only if tokenType is IDENTIFIER.
-     *
-     * @return the identifier which is the current token.
      */
-    private String identifier() {
-        return "";
+    private boolean isIdentifier() {
+        return Character.isLetter(currentToken.trim().charAt(0)) || currentToken.charAt(0) == '_';
     }
 
     /**
+     * @return true if the current token is a string.
+     * <p>
+     * Should be called only if tokenType is STRING_CONST.
+     */
+    private boolean isStringVal() {
+        return currentToken.trim().length() > 1 && currentToken.trim().charAt(0) == '"';
+    }
+
+    /**
+     * @return true if the current token is an integer
+     * <p>
      * Should be called only if tokenType is INT_CONST.
-     *
-     * @return the integer value of the current token.
      */
     private boolean isIntVal() {
         boolean isInt = true;
@@ -183,14 +189,5 @@ public class JackTokenizer {
             isInt = false;
         }
         return isInt;
-    }
-
-    /**
-     * Should be called only if tokenType is STRING_CONST.
-     *
-     * @return the string value of the current token, without the two double quotes.
-     */
-    private String stringVal() {
-        return "";
     }
 }
