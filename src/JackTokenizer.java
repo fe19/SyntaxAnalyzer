@@ -47,7 +47,7 @@ public class JackTokenizer {
                 for (int i = 0; i < line.length(); i++) {
                     char currentChar = line.charAt(i);
                     char nextChar;
-                    if (i < line.length() - 1){
+                    if (i < line.length() - 1) {
                         nextChar = line.charAt(i + 1);
                     } else {
                         nextChar = ' ';
@@ -56,16 +56,16 @@ public class JackTokenizer {
                     if (symbols().contains("" + currentChar)) {
                         String symbol = "" + currentChar;
                         // use other symbols for special characters that are reserved for XML
-                        if (currentChar == '<'){
+                        if (currentChar == '<') {
                             symbol = "&lt;";
                         }
-                        if (currentChar == '>'){
+                        if (currentChar == '>') {
                             symbol = "&gt;";
                         }
-                        if (currentChar == '"'){
+                        if (currentChar == '"') {
                             symbol = " &quot;";
                         }
-                        if (currentChar == '&'){
+                        if (currentChar == '&') {
                             symbol = "&amp;";
                         }
                         outputFile.write("<" + tokenType() + ">");
@@ -73,26 +73,33 @@ public class JackTokenizer {
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
-                    } else if( Character.isDigit(currentChar) ){
+                    } else if (Character.isDigit(currentChar)) {
                         // int
-                    } else if ( currentChar == '"' ) {
-                        // string
-                    } else if (currentChar == ' ' || symbols().contains("" + nextChar)) {
+                    } else if (currentToken.trim().length() > 1 && currentToken.trim().charAt(0) == '"' && currentChar == '"') {
+                        outputFile.write("<" + tokenType() + ">");
+                        outputFile.write(currentToken.trim());
+                        outputFile.write("</" + tokenType() + ">");
+                        outputFile.write("\n");
+                        currentToken = "";
+                    } else if ((currentChar == ' ' || symbols().contains("" + nextChar) ) &&
+                            currentToken.trim().length() > 0 && currentToken.trim().charAt(0) != '"') {
                         System.out.println(currentToken);
-                        if (keyWords().contains(currentToken)){
+                        if (keyWords().contains(currentToken)) {
                             outputFile.write("<" + tokenType() + ">");
                             outputFile.write(currentToken.trim());
                             outputFile.write("</" + tokenType() + ">");
                             outputFile.write("\n");
                             currentToken = "";
-                        } else if (currentToken.trim().length() > 0){
+                        } // Identifier
+                        else {
+                            // Identifier must start with a letter or underscore
                             outputFile.write("<" + tokenType() + ">");
                             outputFile.write(currentToken.trim());
                             outputFile.write("</" + tokenType() + ">");
                             outputFile.write("\n");
                             currentToken = "";
                         }
-                        // Identifier must start with a letter or underscore
+
                     }
                 }
             }
@@ -117,10 +124,10 @@ public class JackTokenizer {
             return "keyword";
         } else if (symbols().contains(currentToken)) {
             return "symbol";
-        } else if (false) {
-            return "int_const";
-        } else if (false) {
-            return "string_const";
+        } else if (Character.isDigit(currentToken.trim().charAt(0))) {
+            return "integerConstant";
+        } else if (currentToken.trim().charAt(0) == '"' && currentToken.trim().charAt(currentToken.trim().length() - 1) == '"') {
+            return "stringConstant";
         } else {
             return "identifier";
         }
