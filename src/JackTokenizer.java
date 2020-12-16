@@ -41,17 +41,59 @@ public class JackTokenizer {
             }
             // ignore empty lines and begining comments
             if (!line.isEmpty() && !line.substring(0, 1).contains("/")) {
-                Scanner scanLine = new Scanner(line);
-                // Loop through chars in line and group them into tokens
-                while (scanLine.hasNext()) {
-                    String word = scanLine.next();
-
-                    currentToken = word;
-                    outputFile.write("<" + tokenType() + ">");
-                    outputFile.write(word);
-                    outputFile.write("</" + tokenType() + ">");
-                    outputFile.write("\n");
-
+                // Loop through all chars in line
+                // System.out.println(line);
+                currentToken = "";
+                for (int i = 0; i < line.length(); i++) {
+                    char currentChar = line.charAt(i);
+                    char nextChar;
+                    if (i < line.length() - 1){
+                        nextChar = line.charAt(i + 1);
+                    } else {
+                        nextChar = ' ';
+                    }
+                    currentToken += currentChar;
+                    if (symbols().contains("" + currentChar)) {
+                        String symbol = "" + currentChar;
+                        // use other symbols for special characters that are reserved for XML
+                        if (currentChar == '<'){
+                            symbol = "&lt;";
+                        }
+                        if (currentChar == '>'){
+                            symbol = "&gt;";
+                        }
+                        if (currentChar == '"'){
+                            symbol = " &quot;";
+                        }
+                        if (currentChar == '&'){
+                            symbol = "&amp;";
+                        }
+                        outputFile.write("<" + tokenType() + ">");
+                        outputFile.write(symbol);
+                        outputFile.write("</" + tokenType() + ">");
+                        outputFile.write("\n");
+                        currentToken = "";
+                    } else if( Character.isDigit(currentChar) ){
+                        // int
+                    } else if ( currentChar == '"' ) {
+                        // string
+                    } else if (currentChar == ' ' || symbols().contains("" + nextChar)) {
+                        System.out.println(currentToken);
+                        if (keyWords().contains(currentToken)){
+                            outputFile.write("<" + tokenType() + ">");
+                            outputFile.write(currentToken.trim());
+                            outputFile.write("</" + tokenType() + ">");
+                            outputFile.write("\n");
+                            currentToken = "";
+                        } else if (currentToken.trim().length() > 0){
+                            outputFile.write("<" + tokenType() + ">");
+                            outputFile.write(currentToken.trim());
+                            outputFile.write("</" + tokenType() + ">");
+                            outputFile.write("\n");
+                            currentToken = "";
+                        }
+                        // Identifier must start with a letter or underscore
+                    }
                 }
             }
         }
@@ -73,10 +115,14 @@ public class JackTokenizer {
     private String tokenType() {
         if (keyWords().contains(currentToken)) {
             return "keyword";
+        } else if (symbols().contains(currentToken)) {
+            return "symbol";
         } else if (false) {
-            return "symbol, identifier, int_const, string_const";
+            return "int_const";
+        } else if (false) {
+            return "string_const";
         } else {
-            return "";
+            return "identifier";
         }
     }
 
@@ -86,17 +132,18 @@ public class JackTokenizer {
      * Should be only called if tokenType is KEYWORD
      */
     private List<String> keyWords() {
-        return Arrays.asList("class", "method", "function", "constructor", "int", "boolean", "char", "void", "var",
-                "static", "field", "let", "do", "if", "else", "while", "return", "true", "false", "null", "this");
+        return Arrays.asList("class ", "method ", "function ", "constructor ", "int ", "boolean ", "char ", "void ", "var ",
+                "static ", "field ", "let ", "do ", "if", "else", "while ", "return ", "true", "false", "null", "this");
     }
 
     /**
-     * Should be called only if tokenType is SYMBOL.
-     *
-     * @return the character which is the current token.
+     * @return a list with all symbols
+     * <p>
+     * Should be only called if tokenType is KEYWORD
      */
-    private char symbol() {
-        return ' ';
+    private List<String> symbols() {
+        return Arrays.asList("{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/", "&", "|", "<", ">", "=",
+                "~");
     }
 
     /**
