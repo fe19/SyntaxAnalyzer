@@ -68,20 +68,20 @@ public class JackTokenizer {
                             symbol = "&amp;";
                         }
                         outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(symbol);
+                        outputFile.write(" " + symbol + " ");
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
                     } else if (isIntVal() && (nextChar == ';' || nextChar == ' ' || nextChar == '+' || nextChar == '-'
                             || nextChar == '*' || nextChar == '/')) {
                         outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(currentToken.trim());
+                        outputFile.write(" " + currentToken.trim() + " ");
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
                     } else if (isStringVal() && currentChar == '"') {
                         outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(currentToken.trim());
+                        outputFile.write(" " + currentToken.trim() + " ");
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
@@ -89,13 +89,13 @@ public class JackTokenizer {
                             currentToken.trim().length() > 0 && currentToken.trim().charAt(0) != '"') {
                         if (keyWords().contains(currentToken)) {
                             outputFile.write("<" + tokenType() + ">");
-                            outputFile.write(currentToken.trim());
+                            outputFile.write(" " + currentToken.trim() + " ");
                             outputFile.write("</" + tokenType() + ">");
                             outputFile.write("\n");
                             currentToken = "";
                         } else if (isIdentifier()) {
                             outputFile.write("<" + tokenType() + ">");
-                            outputFile.write(currentToken.trim());
+                            outputFile.write(" " + currentToken.trim() + " ");
                             outputFile.write("</" + tokenType() + ">");
                             outputFile.write("\n");
                             currentToken = "";
