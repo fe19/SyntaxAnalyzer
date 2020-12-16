@@ -73,17 +73,21 @@ public class JackTokenizer {
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
-                    } else if (Character.isDigit(currentChar)) {
-                        // int
+                    } else if (isIntVal() && (nextChar == ';' || nextChar == ' ' || nextChar == '+' || nextChar == '-'
+                            || nextChar == '*' || nextChar == '/')) {
+                        outputFile.write("<" + tokenType() + ">");
+                        outputFile.write(currentToken.trim());
+                        outputFile.write("</" + tokenType() + ">");
+                        outputFile.write("\n");
+                        currentToken = "";
                     } else if (currentToken.trim().length() > 1 && currentToken.trim().charAt(0) == '"' && currentChar == '"') {
                         outputFile.write("<" + tokenType() + ">");
                         outputFile.write(currentToken.trim());
                         outputFile.write("</" + tokenType() + ">");
                         outputFile.write("\n");
                         currentToken = "";
-                    } else if ((currentChar == ' ' || symbols().contains("" + nextChar) ) &&
+                    } else if ((currentChar == ' ' || symbols().contains("" + nextChar)) && !isIntVal() &&
                             currentToken.trim().length() > 0 && currentToken.trim().charAt(0) != '"') {
-                        System.out.println(currentToken);
                         if (keyWords().contains(currentToken)) {
                             outputFile.write("<" + tokenType() + ">");
                             outputFile.write(currentToken.trim());
@@ -92,7 +96,7 @@ public class JackTokenizer {
                             currentToken = "";
                         } // Identifier
                         else {
-                            // Identifier must start with a letter or underscore
+                            // TODO Identifier must start with a letter or underscore
                             outputFile.write("<" + tokenType() + ">");
                             outputFile.write(currentToken.trim());
                             outputFile.write("</" + tokenType() + ">");
@@ -124,7 +128,7 @@ public class JackTokenizer {
             return "keyword";
         } else if (symbols().contains(currentToken)) {
             return "symbol";
-        } else if (Character.isDigit(currentToken.trim().charAt(0))) {
+        } else if (isIntVal()) {
             return "integerConstant";
         } else if (currentToken.trim().charAt(0) == '"' && currentToken.trim().charAt(currentToken.trim().length() - 1) == '"') {
             return "stringConstant";
@@ -167,8 +171,18 @@ public class JackTokenizer {
      *
      * @return the integer value of the current token.
      */
-    private int intVal() {
-        return 0;
+    private boolean isIntVal() {
+        boolean isInt = true;
+        if (currentToken.trim().length() > 0) {
+            for (char c : currentToken.trim().toCharArray()) {
+                if (!Character.isDigit(c)) {
+                    isInt = false;
+                }
+            }
+        } else {
+            isInt = false;
+        }
+        return isInt;
     }
 
     /**
