@@ -54,7 +54,7 @@ public class JackTokenizer {
                         if (currentToken.length() > 1 && currentChar == '"') {
 
                             outputFile.write("<" + tokenType(currentToken) + ">");
-                            outputFile.write(" " + tokenValue(currentTokenWithSpaces).substring(1, currentTokenWithSpaces.length() - 1) + " ");
+                            outputFile.write(" " + tokenValue(currentTokenWithSpaces.trim()).substring(1, currentTokenWithSpaces.trim().length() - 1) + " ");
                             outputFile.write("</" + tokenType(currentToken) + ">");
                             outputFile.write("\n");
 
