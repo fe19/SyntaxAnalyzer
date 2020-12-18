@@ -40,32 +40,37 @@ public class JackTokenizer {
             String line = scanner.nextLine().trim();
 
             String currentToken = "";
+            String currentTokenWithSpaces = "";
 
             for (int i = 0; i < line.length(); i++) {
                 char currentChar = line.charAt(i);
                 char nextChar = line.charAt(Math.min(i + 1, line.length() - 1));
                 currentToken += currentChar;
+                currentTokenWithSpaces += currentChar;
+                currentToken = currentToken.trim();
 
-                if (currentToken.trim().length() > 0 && !isComment(currentToken)) {
+                if (currentToken.length() > 0 && !isComment(currentToken)) {
                     if (isStringVal(currentToken)) {
                         if (currentToken.length() > 1 && currentChar == '"') {
 
                             outputFile.write("<" + tokenType(currentToken) + ">");
-                            outputFile.write(" " + tokenValue(currentToken).substring(1, currentToken.length() - 1) + " ");
+                            outputFile.write(" " + tokenValue(currentTokenWithSpaces).substring(1, currentTokenWithSpaces.length() - 1) + " ");
                             outputFile.write("</" + tokenType(currentToken) + ">");
                             outputFile.write("\n");
 
                             currentToken = "";
+                            currentTokenWithSpaces = "";
                         }
 
                     } else if (isTermination(currentChar, nextChar)) {
 
-                        outputFile.write("<" + tokenType(currentToken.trim()) + ">");
-                        outputFile.write(" " + tokenValue(currentToken.trim()) + " ");
-                        outputFile.write("</" + tokenType(currentToken.trim()) + ">");
+                        outputFile.write("<" + tokenType(currentToken) + ">");
+                        outputFile.write(" " + tokenValue(currentToken) + " ");
+                        outputFile.write("</" + tokenType(currentToken) + ">");
                         outputFile.write("\n");
 
                         currentToken = "";
+                        currentTokenWithSpaces = "";
                     }
                 }
             }
@@ -79,14 +84,18 @@ public class JackTokenizer {
      * @returns true if the current token is a comment
      */
     private boolean isComment(String currentToken) {
-        return currentToken.charAt(0) == '/';
+        return currentToken.startsWith("//") || currentToken.startsWith("/*");
     }
 
     /**
      * @returns true if the current token is terminated.
      */
     private boolean isTermination(char currentChar, char nextChar) {
-        return isSymbol(currentChar) || nextChar == ' ' || isSymbol(nextChar);
+        if (currentChar == '/') {
+            return nextChar == ' ';
+        } else {
+            return isSymbol(currentChar) || nextChar == ' ' || isSymbol(nextChar);
+        }
     }
 
     /**
