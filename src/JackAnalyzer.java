@@ -10,8 +10,8 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/";
-        String fileOrDirectoryName = "Square";
+        String pathName = "test/Square/";
+        String fileOrDirectoryName = "Main";
         File file = new File(pathName + fileOrDirectoryName);
 
         if (file.isDirectory()) {
@@ -30,9 +30,9 @@ public class JackAnalyzer {
             JackTokenizer jackTokenizer = new JackTokenizer(inputFile, outputTokenizer);
             jackTokenizer.advance();
 
-            FileWriter output = new FileWriter(file + ".xml");
-            CompilationEngine compilationEngine = new CompilationEngine(inputFile, output);
-            compilationEngine.compileClass();
+            // FileWriter output = new FileWriter(file + ".xml");
+            // CompilationEngine compilationEngine = new CompilationEngine(inputFile, output);
+            // compilationEngine.compileClass();
         }
 
         System.out.println("JackTokenizer completed");
