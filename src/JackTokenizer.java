@@ -1,15 +1,13 @@
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 /**
  * Implements the lexical elements of the Jack grammar.
  * - Advancing the input one token at a time.
  * - Getting the value and type of the current token
- * - Ignoring white space
+ * - Ignoring white space and comments
  * Output <, >, ", and & as &lt, &gt, &quot, and &amp since they have special meaning in XML
  */
 public class JackTokenizer {
@@ -17,8 +15,10 @@ public class JackTokenizer {
     FileWriter outputFile;
     Scanner scanner;
 
-    String currentToken;
-
+    /**
+     * @param inputFile  .jack file with source code
+     * @param outputFile .xml file with all tokens
+     */
     public JackTokenizer(FileReader inputFile, FileWriter outputFile) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
@@ -31,145 +31,182 @@ public class JackTokenizer {
      * Should be called only if hasMoreTokens() is true.
      */
     public void advance() throws IOException {
+
         outputFile.write("<tokens>\n");
+
         // Loop through file
-        while (hasMoreTokens()) {
-            String line = scanner.nextLine();
-            // remove trailing comments
-            if (line.contains("//") && line.length() != 2) {
-                line = line.split("//")[0];   // take only part before comment
-            }
-            // ignore empty lines and beginning comments
-            if (!line.isEmpty() && !line.substring(0, 1).contains("/")) {
-                // Loop through all chars in line
-                currentToken = "";
-                for (int i = 0; i < line.length(); i++) {
-                    char currentChar = line.charAt(i);
-                    char nextChar;
-                    if (i < line.length() - 1) {
-                        nextChar = line.charAt(i + 1);
-                    } else {
-                        nextChar = ' ';
-                    }
-                    currentToken += currentChar;
-                    if (symbols().contains("" + currentChar)) {
-                        String symbol = "" + currentChar;
-                        // use other symbols for special characters that are reserved for XML
-                        if (currentChar == '<') {
-                            symbol = "&lt;";
-                        }
-                        if (currentChar == '>') {
-                            symbol = "&gt;";
-                        }
-                        if (currentChar == '"') {
-                            symbol = " &quot;";
-                        }
-                        if (currentChar == '&') {
-                            symbol = "&amp;";
-                        }
-                        outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(" " + symbol + " ");
-                        outputFile.write("</" + tokenType() + ">");
-                        outputFile.write("\n");
-                        currentToken = "";
-                    } else if (isIntVal() && (nextChar == ';' || nextChar == ' ' || nextChar == '+' || nextChar == '-'
-                            || nextChar == '*' || nextChar == '/')) {
-                        outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(" " + currentToken.trim() + " ");
-                        outputFile.write("</" + tokenType() + ">");
-                        outputFile.write("\n");
-                        currentToken = "";
-                    } else if (isStringVal() && currentChar == '"') {
-                        outputFile.write("<" + tokenType() + ">");
-                        outputFile.write(" " + currentToken.trim() + " ");
-                        outputFile.write("</" + tokenType() + ">");
-                        outputFile.write("\n");
-                        currentToken = "";
-                    } else if ((currentChar == ' ' || symbols().contains("" + nextChar)) && !isIntVal() &&
-                            currentToken.trim().length() > 0 && currentToken.trim().charAt(0) != '"') {
-                        if (keyWords().contains(currentToken)) {
-                            outputFile.write("<" + tokenType() + ">");
-                            outputFile.write(" " + currentToken.trim() + " ");
-                            outputFile.write("</" + tokenType() + ">");
+        while (scanner.hasNextLine()) {
+
+            String line = scanner.nextLine().trim();
+
+            String currentToken = "";
+
+            for (int i = 0; i < line.length(); i++) {
+                char currentChar = line.charAt(i);
+                char nextChar = line.charAt(Math.min(i + 1, line.length() - 1));
+                currentToken += currentChar;
+
+                if (currentToken.trim().length() > 0 && !isComment(currentToken)) {
+                    if (isStringVal(currentToken)) {
+                        if (currentToken.length() > 1 && currentChar == '"') {
+
+                            outputFile.write("<" + tokenType(currentToken) + ">");
+                            outputFile.write(" " + tokenValue(currentToken).substring(1, currentToken.length() - 1) + " ");
+                            outputFile.write("</" + tokenType(currentToken) + ">");
                             outputFile.write("\n");
-                            currentToken = "";
-                        } else if (isIdentifier()) {
-                            outputFile.write("<" + tokenType() + ">");
-                            outputFile.write(" " + currentToken.trim() + " ");
-                            outputFile.write("</" + tokenType() + ">");
-                            outputFile.write("\n");
+
                             currentToken = "";
                         }
 
+                    } else if (isTermination(currentChar, nextChar)) {
+
+                        outputFile.write("<" + tokenType(currentToken.trim()) + ">");
+                        outputFile.write(" " + tokenValue(currentToken.trim()) + " ");
+                        outputFile.write("</" + tokenType(currentToken.trim()) + ">");
+                        outputFile.write("\n");
+
+                        currentToken = "";
                     }
                 }
             }
         }
+
         outputFile.write("</tokens>\n");
         outputFile.close();
     }
 
-
     /**
-     * @return true if there are more tokens in the input.
+     * @returns true if the current token is a comment
      */
-    private boolean hasMoreTokens() {
-        return scanner.hasNextLine();
+    private boolean isComment(String currentToken) {
+        return currentToken.charAt(0) == '/';
     }
 
     /**
-     * @return the type of the current token.
+     * @returns true if the current token is terminated.
      */
-    private String tokenType() {
-        if (keyWords().contains(currentToken)) {
-            return "keyword";
-        } else if (symbols().contains(currentToken)) {
+    private boolean isTermination(char currentChar, char nextChar) {
+        return isSymbol(currentChar) || nextChar == ' ' || isSymbol(nextChar);
+    }
+
+    /**
+     * @returns the type of the current token.
+     */
+    private String tokenType(String currentToken) {
+        if (isSymbol(currentToken.charAt(0))) {
             return "symbol";
-        } else if (isIntVal()) {
+        } else if (isKeyword(currentToken)) {
+            return "keyword";
+        } else if (isIntVal(currentToken)) {
             return "integerConstant";
-        } else if (isStringVal()) {
+        } else if (isStringVal(currentToken)) {
             return "stringConstant";
-        } else {
+        } else if (isIdentifier(currentToken)) {
             return "identifier";
+        } else if (isComment(currentToken)) {
+            return "comment";
+        } else {
+            System.out.println("Token type unknown: " + currentToken);
+            return "";
         }
     }
 
     /**
-     * @return a list with all keywords
-     * <p>
-     * Should be only called if tokenType is KEYWORD
+     * @returns the value of the current token. Normally it is the given token. But there are some special characters in XML.
      */
-    private List<String> keyWords() {
-        return Arrays.asList("class ", "method ", "function ", "constructor ", "int ", "boolean ", "char ", "void ", "var ",
-                "static ", "field ", "let ", "do ", "if", "else", "while ", "return ", "true", "false", "null", "this");
+    private String tokenValue(String currentToken) {
+        char c = currentToken.charAt(0);
+        if (isSymbol(c)) {
+            switch (c) {
+                case '<':
+                    return "&lt;";
+                case '>':
+                    return "&gt;";
+                case '"':
+                    return "&quot;";
+                case '&':
+                    return "&amp;";
+            }
+            return currentToken;
+        } else {
+            return currentToken;
+        }
     }
 
     /**
-     * @return a list with all symbols
-     * <p>
-     * Should be only called if tokenType is KEYWORD
+     * @returns true if the character is a valid symbol.
      */
-    private List<String> symbols() {
-        return Arrays.asList("{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/", "&", "|", "<", ">", "=",
-                "~");
+    private boolean isSymbol(char c) {
+        switch (c) {
+            case '{':
+            case '}':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '.':
+            case ',':
+            case ';':
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '&':
+            case '|':
+            case '<':
+            case '>':
+            case '=':
+            case '~':
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
-     * @return true if the current token is a valid identifier. Identifier must start with a letter or underscore.
-     * <p>
-     * Should be called only if tokenType is IDENTIFIER.
+     * @returns true if the current token is a valid keyword.
      */
-    private boolean isIdentifier() {
-        return Character.isLetter(currentToken.trim().charAt(0)) || currentToken.charAt(0) == '_';
+    private boolean isKeyword(String currentToken) {
+        switch (currentToken) {
+            case "class":
+            case "method":
+            case "function":
+            case "constructor":
+            case "int":
+            case "boolean":
+            case "char":
+            case "void":
+            case "var":
+            case "static":
+            case "field":
+            case "let":
+            case "do":
+            case "if":
+            case "else":
+            case "while":
+            case "return":
+            case "true":
+            case "false":
+            case "null":
+            case "this":
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
-     * @return true if the current token is a string.
-     * <p>
-     * Should be called only if tokenType is STRING_CONST.
+     * @returns true if the current token is a valid identifier. Identifier must start with a letter or underscore.
      */
-    private boolean isStringVal() {
-        return currentToken.trim().length() > 1 && currentToken.trim().charAt(0) == '"';
+    private boolean isIdentifier(String currentToken) {
+        return Character.isLetter(currentToken.charAt(0)) || currentToken.charAt(0) == '_';
+    }
+
+    /**
+     * @returns true if the current token is a string.
+     */
+    private boolean isStringVal(String currentToken) {
+        return currentToken.charAt(0) == '"';
     }
 
     /**
@@ -177,10 +214,10 @@ public class JackTokenizer {
      * <p>
      * Should be called only if tokenType is INT_CONST.
      */
-    private boolean isIntVal() {
+    private boolean isIntVal(String currentToken) {
         boolean isInt = true;
-        if (currentToken.trim().length() > 0) {
-            for (char c : currentToken.trim().toCharArray()) {
+        if (currentToken.length() > 0) {
+            for (char c : currentToken.toCharArray()) {
                 if (!Character.isDigit(c)) {
                     isInt = false;
                 }
