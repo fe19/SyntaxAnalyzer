@@ -11,8 +11,8 @@ public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
         String pathName = "test/";
-        String fileName = "Main";
-        File file = new File(pathName + fileName);
+        String fileOrDirectoryName = "Square";
+        File file = new File(pathName + fileOrDirectoryName);
 
         if (file.isDirectory()) {
             File[] files = file.listFiles();
