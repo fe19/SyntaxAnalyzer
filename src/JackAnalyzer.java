@@ -10,18 +10,23 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/Square/";
-        String fileOrDirectoryName = "Main";
+        String pathName = "test/";
+        String fileOrDirectoryName = "Square";
         File file = new File(pathName + fileOrDirectoryName);
 
         if (file.isDirectory()) {
+            System.out.println("Directory");
             File[] files = file.listFiles();
             assert files != null;
             for (File f : files) {
-                FileReader fileReader = new FileReader(f);
-                FileWriter outputTokenizer = new FileWriter(f + "T.xml");
-                JackTokenizer jackTokenizer = new JackTokenizer(fileReader, outputTokenizer);
-                jackTokenizer.advance();
+                if (f.getName().contains(".jack")){
+                    FileReader fileReader = new FileReader(f);
+                    String fileName = f.getName().substring(0, f.getName().length() - 5);
+                    FileWriter outputTokenizer = new FileWriter(pathName + fileOrDirectoryName + "/" + fileName + "T.xml");
+                    JackTokenizer jackTokenizer = new JackTokenizer(fileReader, outputTokenizer);
+                    jackTokenizer.advance();
+                }
+
             }
         } else {
             FileReader inputFile = new FileReader(file + ".jack");
