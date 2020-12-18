@@ -15,7 +15,6 @@ public class JackAnalyzer {
         File file = new File(pathName + fileOrDirectoryName);
 
         if (file.isDirectory()) {
-            System.out.println("Directory");
             File[] files = file.listFiles();
             assert files != null;
             for (File f : files) {
