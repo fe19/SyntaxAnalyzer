@@ -12,6 +12,17 @@
 <symbol> , </symbol>
 <identifier> b </identifier>
 <symbol> ; </symbol>
+<keyword> function </keyword>
+<keyword> void </keyword>
+<identifier> main </identifier>
+<symbol> ( </symbol>
+<keyword> int </keyword>
+<identifier> a </identifier>
+<symbol> , </symbol>
+<keyword> int </keyword>
+<identifier> b </identifier>
+<symbol> ) </symbol>
+<symbol> { </symbol>
 <keyword> if </keyword>
 <symbol> ( </symbol>
 <keyword> true </keyword>
@@ -22,6 +33,7 @@
 <symbol> = </symbol>
 <integerConstant> 500 </integerConstant>
 <symbol> ; </symbol>
+<symbol> } </symbol>
 <symbol> } </symbol>
 <symbol> } </symbol>
 </tokens>

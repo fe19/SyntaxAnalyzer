@@ -4,7 +4,9 @@ class Main {
     static boolean test;
     field int a, b;
 
-    if ( true ) {
-        let count = 500;
+    function void main(int a, int b) {
+        if ( true ) {
+            let count = 500;
+        }
     }
 }

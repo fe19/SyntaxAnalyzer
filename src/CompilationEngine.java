@@ -50,12 +50,12 @@ public class CompilationEngine {
         }
         eat("<symbol> { </symbol>");
 
-        // classVarDec*
+        // (classVarDec)*
         while (currentToken.equals("<keyword> static </keyword>") || currentToken.equals("<keyword> field </keyword>")) {
             compileClassVarDec();
         }
 
-        // subroutingeDec*
+        // (subroutingeDec)*
         while (currentToken.equals("<keyword> constructor </keyword>") ||
                 currentToken.equals("<keyword> function </keyword>") || currentToken.equals("<keyword> method </keyword>")) {
             compileSubroutineDec();
@@ -109,15 +109,76 @@ public class CompilationEngine {
     public void compileSubroutineDec() throws IOException {
         outputFile.write("<subroutineDec>\n");
 
+        // (method | function | constructor)
+        eat(currentToken);
+
+        // (void | type)
+        if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
+                currentToken.equals("<keyword> char </keyword>") || currentToken.equals("<keyword> void </keyword>") ||
+                currentToken.startsWith("<identifier>")) {
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid subroutine return type '" + currentToken + "'");
+            eat(currentToken);
+        }
+
+        // subroutineName
+        if (currentToken.startsWith("<identifier>")) {
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid subroutine return type '" + currentToken + "'");
+            eat(currentToken);
+        }
+
+        eat("<symbol> ( </symbol>");
+        compileParameterList();
+        eat("<symbol> ) </symbol>");
+        compileSubroutineBody();
+
         outputFile.write("</subroutineDec>\n");
     }
 
     /**
-     * Compiles a (possible empty) parameter list.
-     * Does not handle the enclosing ()
+     * Compiles a parameter list. Grammar parameterList: ( (type varName) (',' type varName)* )?
+     * Possibly empty, does not handle the enclosing ()
      */
-    public void compileParameterList() {
+    public void compileParameterList() throws IOException {
+        outputFile.write("<parameterList>\n");
 
+        if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
+                currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")) {
+            // type
+            eat(currentToken);
+            // varName
+            if (currentToken.startsWith("<identifier>")) {
+                eat(currentToken);
+            } else {
+                System.out.println(ERROR_MESSAGE + "Invalid parameter list variable name '" + currentToken + "'");
+                eat(currentToken);
+            }
+            // (',' type varName)*
+            while (currentToken.equals("<symbol> , </symbol>")){
+                // ','
+                eat(currentToken);
+                // type
+                if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
+                        currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")) {
+                    eat(currentToken);
+                } else {
+                    System.out.println(ERROR_MESSAGE + "Invalid parameter list type '" + currentToken + "'");
+                    eat(currentToken);
+                }
+                // varName
+                if (currentToken.startsWith("<identifier>")) {
+                    eat(currentToken);
+                } else {
+                    System.out.println(ERROR_MESSAGE + "Invalid parameter list variable name '" + currentToken + "'");
+                    eat(currentToken);
+                }
+            }
+        }
+
+        outputFile.write("</parameterList>\n");
     }
 
     /**
