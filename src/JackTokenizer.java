@@ -11,7 +11,6 @@ import java.util.Scanner;
  * Output <, >, ", and & as &lt, &gt, &quot, and &amp since they have special meaning in XML
  */
 public class JackTokenizer {
-    FileReader inputFile;
     FileWriter outputFile;
     Scanner scanner;
 
@@ -20,7 +19,6 @@ public class JackTokenizer {
      * @param outputFile .xml file with all tokens
      */
     public JackTokenizer(FileReader inputFile, FileWriter outputFile) {
-        this.inputFile = inputFile;
         this.outputFile = outputFile;
         scanner = new Scanner(inputFile);
     }

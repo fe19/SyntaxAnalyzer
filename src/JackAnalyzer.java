@@ -23,6 +23,7 @@ public class JackAnalyzer {
                     FileWriter outputTokenizer = new FileWriter(pathName + fileName + "T.xml");
                     JackTokenizer jackTokenizer = new JackTokenizer(fileReader, outputTokenizer);
                     jackTokenizer.advance();
+                    System.out.println("Tokenizer completed class '" + f + "'");
                 }
 
             }
@@ -31,13 +32,16 @@ public class JackAnalyzer {
             FileWriter outputTokenizer = new FileWriter(file + "T.xml");
             JackTokenizer jackTokenizer = new JackTokenizer(inputFile, outputTokenizer);
             jackTokenizer.advance();
+            System.out.println("Tokenizer completed class '" + file + "'");
 
             FileReader tokenizedFile = new FileReader(file + "T.xml");
             FileWriter output = new FileWriter(file + ".xml");
             CompilationEngine compilationEngine = new CompilationEngine(tokenizedFile, output);
             compilationEngine.compileClass();
+            System.out.println("Parser completed class '" + file + "'");
         }
+        System.out.println("Jack Syntax Analyzer completed");
 
-        System.out.println("JackTokenizer completed");
+
     }
 }
