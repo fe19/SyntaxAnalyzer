@@ -74,13 +74,7 @@ public class CompilationEngine {
         outputFile.write("<classVarDec>\n");
 
         eat(currentToken);  // 'static' | 'field'
-        if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
-                currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid type '" + currentToken + "'");
-            eat(currentToken);
-        }
+        eatType(currentToken);
         if (currentToken.startsWith("<identifier>")) {
             eat(currentToken);
         } else {
@@ -150,14 +144,9 @@ public class CompilationEngine {
             // type
             eat(currentToken);
             // varName
-            if (currentToken.startsWith("<identifier>")) {
-                eat(currentToken);
-            } else {
-                System.out.println(ERROR_MESSAGE + "Invalid parameter list variable name '" + currentToken + "'");
-                eat(currentToken);
-            }
+            eatIdentifier(currentToken);
             // (',' type varName)*
-            while (currentToken.equals("<symbol> , </symbol>")){
+            while (currentToken.equals("<symbol> , </symbol>")) {
                 // ','
                 eat(currentToken);
                 // type
@@ -169,12 +158,7 @@ public class CompilationEngine {
                     eat(currentToken);
                 }
                 // varName
-                if (currentToken.startsWith("<identifier>")) {
-                    eat(currentToken);
-                } else {
-                    System.out.println(ERROR_MESSAGE + "Invalid parameter list variable name '" + currentToken + "'");
-                    eat(currentToken);
-                }
+                eatIdentifier(currentToken);
             }
         }
 
@@ -182,17 +166,40 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a subroutine's body.
+     * Compiles a subroutine's body. Grammar subroutineBody: '{' varDec* statements '}'
      */
-    public void compileSubroutineBody() {
+    public void compileSubroutineBody() throws IOException {
+        outputFile.write("<subroutineBody>\n");
 
+        // '{'
+        eat(currentToken);
+        // (varDec)*
+        while (currentToken.equals("<keyword> var </keyword>")) {
+            compileVarDec();
+        }
+        compileStatements();
+        // '}'
+        eat(currentToken);
+
+        outputFile.write("</subroutineBody>\n");
     }
 
     /**
-     * Compiles a variable declaration.
+     * Compiles a variable declaration. Grammar varDec: 'var' type varName (',' varName)* ';'
      */
-    public void compileVarDec() {
+    public void compileVarDec() throws IOException {
+        outputFile.write("<varDec>\n");
 
+        eat("<keyword> var </keyword>");
+        eatType(currentToken);
+        eatIdentifier(currentToken);
+        while (currentToken.equals("<symbol> , </symbol>")) {
+            eat("<symbol> , </symbol>");
+            eatIdentifier(currentToken);
+        }
+        eat("<symbol> ; </symbol>");
+
+        outputFile.write("</varDec>\n");
     }
 
     /**
@@ -258,12 +265,7 @@ public class CompilationEngine {
         outputFile.write("<letStatement>\n");
 
         eat("<keyword> let </keyword>");
-        if (currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "' must have <identifier> tag");
-            eat(currentToken);
-        }
+        eatIdentifier(currentToken);
         eat("<symbol> = </symbol>");
         compileExpression();
         eat("<symbol> ; </symbol>");
@@ -335,4 +337,30 @@ public class CompilationEngine {
             currentToken = inputScanner.nextLine();
         }
     }
+
+    /**
+     * Eats the current type and moves on to the next token.
+     */
+    private void eatIdentifier(String token) throws IOException {
+        if (token.startsWith("<identifier>")) {
+            eat(token);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid identifier '" + token + "'");
+            eat(token);
+        }
+    }
+
+    /**
+     * Eats the current type and moves on to the next token.
+     */
+    private void eatType(String token) throws IOException {
+        if (token.equals("<keyword> boolean </keyword>") || token.equals("<keyword> int </keyword>") ||
+                token.equals("<keyword> char </keyword>") || token.startsWith("<identifier>")) {
+            eat(token);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid type '" + token + "'");
+            eat(token);
+        }
+    }
+
 }

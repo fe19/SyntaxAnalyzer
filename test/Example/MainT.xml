@@ -23,6 +23,16 @@
 <identifier> b </identifier>
 <symbol> ) </symbol>
 <symbol> { </symbol>
+<keyword> var </keyword>
+<keyword> int </keyword>
+<identifier> var1 </identifier>
+<symbol> , </symbol>
+<identifier> var2 </identifier>
+<symbol> ; </symbol>
+<keyword> var </keyword>
+<keyword> char </keyword>
+<identifier> c1 </identifier>
+<symbol> ; </symbol>
 <keyword> if </keyword>
 <symbol> ( </symbol>
 <keyword> true </keyword>

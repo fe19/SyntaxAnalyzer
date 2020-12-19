@@ -5,6 +5,9 @@ class Main {
     field int a, b;
 
     function void main(int a, int b) {
+        var int var1, var2;
+        var char c1;
+
         if ( true ) {
             let count = 500;
         }
