@@ -12,6 +12,10 @@ public class CompilationEngine {
     FileWriter outputFile;
     Scanner inputScanner;
 
+    String currentToken;
+
+    private static final String ERROR_MESSAGE = "Parser Error: ";
+
     /**
      * Creates a new compilation engine with the given input and output.
      *
@@ -21,6 +25,7 @@ public class CompilationEngine {
     public CompilationEngine(FileReader inputFile, FileWriter outputFile) {
         this.outputFile = outputFile;
         inputScanner = new Scanner(inputFile);
+        currentToken = "";
     }
 
     /**
@@ -30,16 +35,16 @@ public class CompilationEngine {
 
         outputFile.write("<class>\n");
 
-        if (inputScanner.hasNextLine()){
+        currentToken = inputScanner.nextLine();
+        if (!currentToken.equals("<tokens>")) {
+            System.out.println(ERROR_MESSAGE + "Tokenized file does not begin with tag '<tokens>'");
+        }
 
-            String firstToken = inputScanner.nextLine();
-            if (!firstToken.equals("<tokens>")){
-                System.out.println("Parser error. Tokenized file does not begin with tag '<tokens>'");
-            }
-            String startToken = inputScanner.nextLine();
+        while (inputScanner.hasNextLine()) {
 
-            if (startToken.equals("<keyword> while </keyword>")){
-                System.out.println("   compileWhile()");
+            currentToken = inputScanner.nextLine();
+
+            if (currentToken.equals("<keyword> while </keyword>")) {
                 compileWhile();
             }
 
@@ -89,8 +94,11 @@ public class CompilationEngine {
      * Compiles a sequence of statements.
      * Does not handle the enclosing {}
      */
-    public void compileStatements() {
+    public void compileStatements() throws IOException {
+        System.out.println("   compileStatements()");
+        outputFile.write("<statements>\n");
 
+        outputFile.write("</statements>\n");
     }
 
     /**
@@ -110,7 +118,9 @@ public class CompilationEngine {
     /**
      * Compiles a while statement.
      */
-    public void compileWhile() {
+    public void compileWhile() throws IOException {
+        System.out.println("   compileWhile()");
+        outputFile.write("<whileStatement>\n");
         eat("while");
         eat("(");
         compileExpression();
@@ -118,17 +128,7 @@ public class CompilationEngine {
         eat("{");
         compileStatements();
         eat("}");
-    }
-
-    /**
-     * Eats the current token and moves on to the next token.
-     */
-    private void eat(String token) {
-        String line = inputScanner.nextLine();
-
-        if (!line.contains(token)){
-            System.out.println("Parser error. Invalid token '" + token + "'");
-        }
+        outputFile.write("</whileStatement>\n");
     }
 
     /**
@@ -146,9 +146,15 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles an expression.
+     * Compiles an expression. Grammar: expression: term (op term)?
      */
-    public void compileExpression() {
+    public void compileExpression() throws IOException {
+        System.out.println("   compileExpression()");
+
+        outputFile.write("<expression>\n");
+        compileTerm();
+        outputFile.write("</expression>\n");
+        // TODO Optional part of expression
 
     }
 
@@ -160,12 +166,29 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a term.
+     * Compiles a term. Grammar: term: varName | constant
      * LL(2): If the current token is an identifier, the routine must distinguish between a variable, an array entry, or a subroutine call.
      * A single look-ahead token, which may be one of [, ( or . suffices to distinguish it.
      * Any other token is not part of this term and should not be advanced over.
      */
-    public void compileTerm() {
+    public void compileTerm() throws IOException {
+        System.out.println("   compileTerm()");
+        outputFile.write("<term>\n");
+        if (currentToken.startsWith("<identifier>") || currentToken.startsWith("<integerConstant>")) {
+            outputFile.write(currentToken + "\n");
+        } else{
+            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "'");
+        }
+        outputFile.write("</term>\n");
+    }
 
+    /**
+     * Eats the current token and moves on to the next token.
+     */
+    private void eat(String token) {
+        if (!currentToken.contains(token)) {
+            System.out.println(ERROR_MESSAGE + "Invalid token '" + token + "'");
+        }
+        currentToken = inputScanner.nextLine();
     }
 }
