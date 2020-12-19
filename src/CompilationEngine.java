@@ -1,5 +1,7 @@
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * Implements the program structure, statements, and expressions of the Jack grammar.
@@ -7,6 +9,9 @@ import java.io.FileWriter;
  * Described in unit 4.5
  */
 public class CompilationEngine {
+    FileReader inputFile;
+    FileWriter outputFile;
+    Scanner scanner;
 
     /**
      * Creates a new compilation engine with the given input and output.
@@ -15,13 +20,22 @@ public class CompilationEngine {
      * @param outputFile
      */
     public CompilationEngine(FileReader inputFile, FileWriter outputFile) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+        scanner = new Scanner(inputFile);
     }
 
     /**
      * Compiles a complete class.
      */
-    public void compileClass() {
+    public void compileClass() throws IOException {
 
+        outputFile.write("<class>\n");
+
+
+
+        outputFile.write("</class>\n");
+        outputFile.close();
     }
 
     /**

@@ -10,7 +10,7 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/ExpressionLessSquare/Main";
+        String pathName = "test/Main";
         File file = new File(pathName);
 
         if (file.isDirectory()) {
@@ -28,14 +28,14 @@ public class JackAnalyzer {
             }
         } else {
             FileReader inputFile = new FileReader(file + ".jack");
-
             FileWriter outputTokenizer = new FileWriter(file + "T.xml");
             JackTokenizer jackTokenizer = new JackTokenizer(inputFile, outputTokenizer);
             jackTokenizer.advance();
 
-            // FileWriter output = new FileWriter(file + ".xml");
-            // CompilationEngine compilationEngine = new CompilationEngine(inputFile, output);
-            // compilationEngine.compileClass();
+            FileReader tokenizedFile = new FileReader(file + "T.xml");
+            FileWriter output = new FileWriter(file + ".xml");
+            CompilationEngine compilationEngine = new CompilationEngine(tokenizedFile, output);
+            compilationEngine.compileClass();
         }
 
         System.out.println("JackTokenizer completed");
