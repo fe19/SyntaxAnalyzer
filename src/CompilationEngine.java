@@ -44,17 +44,23 @@ public class CompilationEngine {
         eat("<keyword> class </keyword>");
         if (currentToken.startsWith("<identifier>")) {
             eat(currentToken);
-        }else {
+        } else {
             System.out.println(ERROR_MESSAGE + "Invalid className tag '" + currentToken + "'");
             eat(currentToken);
         }
         eat("<symbol> { </symbol>");
 
-        while (currentToken.equals("<keyword> static </keyword>") || currentToken.equals("<keyword> field </keyword>")){
+        // classVarDec*
+        while (currentToken.equals("<keyword> static </keyword>") || currentToken.equals("<keyword> field </keyword>")) {
             compileClassVarDec();
         }
 
-        compileSubroutineDec();
+        // subroutingeDec*
+        while (currentToken.equals("<keyword> constructor </keyword>") ||
+                currentToken.equals("<keyword> function </keyword>") || currentToken.equals("<keyword> method </keyword>")) {
+            compileSubroutineDec();
+        }
+
         eat("<symbol> } </symbol>");
 
         outputFile.write("</class>\n");
@@ -69,22 +75,22 @@ public class CompilationEngine {
 
         eat(currentToken);  // 'static' | 'field'
         if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
-                currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")){
+                currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")) {
             eat(currentToken);
         } else {
             System.out.println(ERROR_MESSAGE + "Invalid type '" + currentToken + "'");
             eat(currentToken);
         }
-        if (currentToken.startsWith("<identifier>")){
+        if (currentToken.startsWith("<identifier>")) {
             eat(currentToken);
         } else {
             System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
             eat(currentToken);
         }
 
-        while (currentToken.equals("<symbol> , </symbol>")){
+        while (currentToken.equals("<symbol> , </symbol>")) {
             eat(currentToken);  // ','
-            if (currentToken.startsWith("<identifier>")){
+            if (currentToken.startsWith("<identifier>")) {
                 eat(currentToken);
             } else {
                 System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
@@ -98,10 +104,12 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a complete method, function, or constructor.
+     * Compiles a subroutine declaration. Grammar subroutineDec: (method | function | constructor) (void | type) subroutineName '(' parameterList ')' subroutineBody
      */
-    public void compileSubroutineDec() {
+    public void compileSubroutineDec() throws IOException {
+        outputFile.write("<subroutineDec>\n");
 
+        outputFile.write("</subroutineDec>\n");
     }
 
     /**
