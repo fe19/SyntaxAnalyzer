@@ -40,12 +40,16 @@ public class CompilationEngine {
             System.out.println(ERROR_MESSAGE + "Tokenized file does not begin with tag '<tokens>'");
         }
 
+        currentToken = inputScanner.nextLine();
+
         while (inputScanner.hasNextLine()) {
 
-            currentToken = inputScanner.nextLine();
-
-            if (currentToken.equals("<keyword> while </keyword>")) {
+            if (currentToken.equals("<keyword> if </keyword>")) {
+                compileIf();
+            } else if (currentToken.equals("<keyword> while </keyword>")) {
                 compileWhile();
+            } else if (currentToken.equals("<keyword> let </keyword>")) {
+                compileLet();
             }
 
         }
@@ -91,44 +95,79 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a sequence of statements.
+     * Compiles a sequence of statements. Grammar statements: (ifStatement | whileStatement | letStatement)*
      * Does not handle the enclosing {}
      */
     public void compileStatements() throws IOException {
-        System.out.println("   compileStatements()");
         outputFile.write("<statements>\n");
+
+        if (currentToken.equals("<keyword> if </keyword>")) {
+            compileIf();
+        } else if (currentToken.equals("<keyword> while </keyword>")) {
+            compileWhile();
+        } else if (currentToken.equals("<keyword> let </keyword>")) {
+            compileLet();
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid statement '" + currentToken + "'");
+        }
 
         outputFile.write("</statements>\n");
     }
 
     /**
-     * Compiles a let statement.
+     * Compiles an if statement. Grammar ifStatement: 'if' '(' expression ')' '{' statements '}'
+     * Possibly followed by an else clause.
      */
-    public void compileLet() {
+    public void compileIf() throws IOException {
+        outputFile.write("<ifStatement>\n");
+
+        eat("<keyword> if </keyword>");
+        eat("<symbol> ( </symbol>");
+        compileExpression();
+        eat("<symbol> ) </symbol>");
+        eat("<symbol> { </symbol>");
+        compileStatements();
+        eat("<symbol> } </symbol>");
+
+        outputFile.write("</ifStatement>\n");
 
     }
 
     /**
-     * Compiles an if statement possibly followed by an else clause.
-     */
-    public void compileIf() {
-
-    }
-
-    /**
-     * Compiles a while statement.
+     * Compiles a while statement. Grammar whileStatement: 'while' '(' expression ')' '{' statements'}'
      */
     public void compileWhile() throws IOException {
-        System.out.println("   compileWhile()");
         outputFile.write("<whileStatement>\n");
-        eat("while");
-        eat("(");
+
+        eat("<keyword> while </keyword>");
+        eat("<symbol> ( </symbol>");
         compileExpression();
-        eat(")");
-        eat("{");
+        eat("<symbol> ) </symbol>");
+        eat("<symbol> { </symbol>");
         compileStatements();
-        eat("}");
+        eat("<symbol> } </symbol>");
+
         outputFile.write("</whileStatement>\n");
+    }
+
+    /**
+     * Compiles a let statement. Grammar letStatement: 'let' varName '=' expression ';'
+     */
+    public void compileLet() throws IOException {
+        outputFile.write("<letStatement>\n");
+
+        eat("<keyword> let </keyword>");
+        if (currentToken.startsWith("<identifier>")) {
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "' must have <identifier> tag");
+            eat(currentToken);
+        }
+        eat("<symbol> = </symbol>");
+        compileExpression();
+        eat("<symbol> ; </symbol>");
+
+        outputFile.write("</letStatement>\n");
     }
 
     /**
@@ -149,13 +188,12 @@ public class CompilationEngine {
      * Compiles an expression. Grammar: expression: term (op term)?
      */
     public void compileExpression() throws IOException {
-        System.out.println("   compileExpression()");
-
         outputFile.write("<expression>\n");
+
         compileTerm();
-        outputFile.write("</expression>\n");
         // TODO Optional part of expression
 
+        outputFile.write("</expression>\n");
     }
 
     /**
@@ -172,23 +210,28 @@ public class CompilationEngine {
      * Any other token is not part of this term and should not be advanced over.
      */
     public void compileTerm() throws IOException {
-        System.out.println("   compileTerm()");
         outputFile.write("<term>\n");
+
         if (currentToken.startsWith("<identifier>") || currentToken.startsWith("<integerConstant>")) {
-            outputFile.write(currentToken + "\n");
-        } else{
-            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "'");
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "' must have <identifier> or <integerConstant> tag");
+            eat(currentToken);
         }
+
         outputFile.write("</term>\n");
     }
 
     /**
      * Eats the current token and moves on to the next token.
      */
-    private void eat(String token) {
-        if (!currentToken.contains(token)) {
-            System.out.println(ERROR_MESSAGE + "Invalid token '" + token + "'");
+    private void eat(String token) throws IOException {
+        if (currentToken.equals(token)) {
+            outputFile.write(token + "\n");
+            currentToken = inputScanner.nextLine();
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid token '" + currentToken + "' instead of '" + token + "'");
+            currentToken = inputScanner.nextLine();
         }
-        currentToken = inputScanner.nextLine();
     }
 }

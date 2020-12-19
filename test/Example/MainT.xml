@@ -1,0 +1,29 @@
+<tokens>
+<keyword> if </keyword>
+<symbol> ( </symbol>
+<identifier> x </identifier>
+<symbol> ) </symbol>
+<symbol> { </symbol>
+<keyword> let </keyword>
+<identifier> count </identifier>
+<symbol> = </symbol>
+<integerConstant> 500 </integerConstant>
+<symbol> ; </symbol>
+<symbol> } </symbol>
+<keyword> while </keyword>
+<symbol> ( </symbol>
+<identifier> x </identifier>
+<symbol> ) </symbol>
+<symbol> { </symbol>
+<keyword> let </keyword>
+<identifier> count </identifier>
+<symbol> = </symbol>
+<integerConstant> 100 </integerConstant>
+<symbol> ; </symbol>
+<symbol> } </symbol>
+<keyword> let </keyword>
+<identifier> count </identifier>
+<symbol> = </symbol>
+<integerConstant> 5500 </integerConstant>
+<symbol> ; </symbol>
+</tokens>

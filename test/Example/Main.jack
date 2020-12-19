@@ -1,0 +1,11 @@
+// Example from unit 4.5
+if ( x ) {
+    let count = 500;
+}
+
+while ( x ) {
+    let count = 100;
+}
+
+let count = 5500;
+

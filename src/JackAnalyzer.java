@@ -4,26 +4,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * Input:   .jack file(s)
- * Output:  .xml file(s)
+ * Input:   name.jack file(s) that contain(s) Jack classes
+ * Output:  nameT.xml file(s) that contain(s) all tokens from .jack files (intermediate result)
+ *          name.xml file(s) that contain(s) the parsing tree.
  */
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/Main";
+        String pathName = "test/Example/";
         File file = new File(pathName);
 
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             assert files != null;
             for (File f : files) {
-                if (f.getName().contains(".jack")){
+                if (f.getName().endsWith(".jack")) {
+                    String fileName = pathName + f.getName().substring(0, f.getName().length() - 5);
+
                     FileReader fileReader = new FileReader(f);
-                    String fileName = f.getName().substring(0, f.getName().length() - 5);
-                    FileWriter outputTokenizer = new FileWriter(pathName + fileName + "T.xml");
+                    FileWriter outputTokenizer = new FileWriter(fileName + "T.xml");
                     JackTokenizer jackTokenizer = new JackTokenizer(fileReader, outputTokenizer);
                     jackTokenizer.advance();
-                    System.out.println("Tokenizer completed class '" + f + "'");
+                    System.out.println("Tokenizer completed class '" + fileName + "'");
+
+                    FileReader tokenizedFile = new FileReader(fileName + "T.xml");
+                    FileWriter output = new FileWriter(fileName + ".xml");
+                    CompilationEngine compilationEngine = new CompilationEngine(tokenizedFile, output);
+                    compilationEngine.compileClass();
+                    System.out.println("Parser completed class '" + fileName + "'");
                 }
 
             }
@@ -40,8 +48,7 @@ public class JackAnalyzer {
             compilationEngine.compileClass();
             System.out.println("Parser completed class '" + file + "'");
         }
+
         System.out.println("Jack Syntax Analyzer completed");
-
-
     }
 }
