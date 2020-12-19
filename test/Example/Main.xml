@@ -51,7 +51,7 @@
 <symbol> ( </symbol>
 <expression>
 <term>
-<keyword> true </keyword>
+<identifier> var1 </identifier>
 </term>
 </expression>
 <symbol> ) </symbol>

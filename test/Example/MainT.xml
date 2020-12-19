@@ -35,7 +35,7 @@
 <symbol> ; </symbol>
 <keyword> if </keyword>
 <symbol> ( </symbol>
-<keyword> true </keyword>
+<identifier> var1 </identifier>
 <symbol> ) </symbol>
 <symbol> { </symbol>
 <keyword> let </keyword>

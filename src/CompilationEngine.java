@@ -19,8 +19,8 @@ public class CompilationEngine {
     /**
      * Creates a new compilation engine with the given input and output.
      *
-     * @param inputFile
-     * @param outputFile
+     * @param inputFile  nameT.xml file with all tokens
+     * @param outputFile name.xml file with parsing tree
      */
     public CompilationEngine(FileReader inputFile, FileWriter outputFile) {
         this.outputFile = outputFile;
@@ -42,12 +42,7 @@ public class CompilationEngine {
         outputFile.write("<class>\n");
 
         eat("<keyword> class </keyword>");
-        if (currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid className tag '" + currentToken + "'");
-            eat(currentToken);
-        }
+        eatIdentifier(currentToken);
         eat("<symbol> { </symbol>");
 
         // (classVarDec)*
@@ -75,21 +70,11 @@ public class CompilationEngine {
 
         eat(currentToken);  // 'static' | 'field'
         eatType(currentToken);
-        if (currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
-            eat(currentToken);
-        }
+        eatIdentifier(currentToken);
 
         while (currentToken.equals("<symbol> , </symbol>")) {
             eat(currentToken);  // ','
-            if (currentToken.startsWith("<identifier>")) {
-                eat(currentToken);
-            } else {
-                System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
-                eat(currentToken);
-            }
+            eatIdentifier(currentToken);
         }
 
         eat("<symbol> ; </symbol>");
@@ -117,13 +102,7 @@ public class CompilationEngine {
         }
 
         // subroutineName
-        if (currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid subroutine return type '" + currentToken + "'");
-            eat(currentToken);
-        }
-
+        eatIdentifier(currentToken);
         eat("<symbol> ( </symbol>");
         compileParameterList();
         eat("<symbol> ) </symbol>");
@@ -209,14 +188,19 @@ public class CompilationEngine {
     public void compileStatements() throws IOException {
         outputFile.write("<statements>\n");
 
-        if (currentToken.equals("<keyword> if </keyword>")) {
-            compileIf();
-        } else if (currentToken.equals("<keyword> while </keyword>")) {
-            compileWhile();
-        } else if (currentToken.equals("<keyword> let </keyword>")) {
-            compileLet();
-        } else {
-            System.out.println(ERROR_MESSAGE + "Invalid statement '" + currentToken + "'");
+        switch (currentToken) {
+            case "<keyword> if </keyword>":
+                compileIf();
+                break;
+            case "<keyword> while </keyword>":
+                compileWhile();
+                break;
+            case "<keyword> let </keyword>":
+                compileLet();
+                break;
+            default:
+                System.out.println(ERROR_MESSAGE + "Invalid statement '" + currentToken + "'");
+                break;
         }
 
         outputFile.write("</statements>\n");
@@ -342,11 +326,9 @@ public class CompilationEngine {
      * Eats the current type and moves on to the next token.
      */
     private void eatIdentifier(String token) throws IOException {
-        if (token.startsWith("<identifier>")) {
-            eat(token);
-        } else {
+        eat(token);
+        if (!token.startsWith("<identifier>")) {
             System.out.println(ERROR_MESSAGE + "Invalid identifier '" + token + "'");
-            eat(token);
         }
     }
 
