@@ -34,13 +34,25 @@ public class JackTokenizer {
 
         outputFile.write("<tokens>\n");
 
+        String currentToken = "";
+        String currentTokenWithSpaces = "";
+        boolean isMultiLineComment = false;
+
         // Loop through file
         while (scanner.hasNextLine()) {
 
             String line = scanner.nextLine().trim();
 
-            String currentToken = "";
-            String currentTokenWithSpaces = "";
+            if (line.startsWith("/**") && !line.endsWith("*/")){
+                isMultiLineComment = true;
+            }
+            if (!isMultiLineComment){
+                currentToken = "";
+                currentTokenWithSpaces = "";
+            }
+            if (line.startsWith("*/")){
+                isMultiLineComment = false;
+            }
 
             for (int i = 0; i < line.length(); i++) {
                 char currentChar = line.charAt(i);
@@ -48,6 +60,8 @@ public class JackTokenizer {
                 currentToken += currentChar;
                 currentTokenWithSpaces += currentChar;
                 currentToken = currentToken.trim();
+
+
 
                 if (currentToken.length() > 0 && !isComment(currentToken)) {
                     if (isStringVal(currentToken)) {
