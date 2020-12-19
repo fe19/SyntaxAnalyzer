@@ -29,40 +29,72 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a complete class.
+     * Compiles a complete class. Grammar class: 'class' className '{' classVarDec* subroutingeDec* '}'
      */
     public void compileClass() throws IOException {
-
-        outputFile.write("<class>\n");
 
         currentToken = inputScanner.nextLine();
         if (!currentToken.equals("<tokens>")) {
             System.out.println(ERROR_MESSAGE + "Tokenized file does not begin with tag '<tokens>'");
         }
-
         currentToken = inputScanner.nextLine();
 
-        while (inputScanner.hasNextLine()) {
+        outputFile.write("<class>\n");
 
-            if (currentToken.equals("<keyword> if </keyword>")) {
-                compileIf();
-            } else if (currentToken.equals("<keyword> while </keyword>")) {
-                compileWhile();
-            } else if (currentToken.equals("<keyword> let </keyword>")) {
-                compileLet();
-            }
-
+        eat("<keyword> class </keyword>");
+        if (currentToken.startsWith("<identifier>")) {
+            eat(currentToken);
+        }else {
+            System.out.println(ERROR_MESSAGE + "Invalid className tag '" + currentToken + "'");
+            eat(currentToken);
         }
+        eat("<symbol> { </symbol>");
+
+        while (currentToken.equals("<keyword> static </keyword>") || currentToken.equals("<keyword> field </keyword>")){
+            compileClassVarDec();
+        }
+
+        compileSubroutineDec();
+        eat("<symbol> } </symbol>");
 
         outputFile.write("</class>\n");
         outputFile.close();
     }
 
     /**
-     * Compiles a static or field variable declaration.
+     * Compiles class variable declaration. Grammar classVarDec: ('static' | 'field') type varName (',', varName)* ';'
      */
-    public void compileClassVarDec() {
+    public void compileClassVarDec() throws IOException {
+        outputFile.write("<classVarDec>\n");
 
+        eat(currentToken);  // 'static' | 'field'
+        if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
+                currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")){
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid type '" + currentToken + "'");
+            eat(currentToken);
+        }
+        if (currentToken.startsWith("<identifier>")){
+            eat(currentToken);
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
+            eat(currentToken);
+        }
+
+        while (currentToken.equals("<symbol> , </symbol>")){
+            eat(currentToken);  // ','
+            if (currentToken.startsWith("<identifier>")){
+                eat(currentToken);
+            } else {
+                System.out.println(ERROR_MESSAGE + "Invalid variable name '" + currentToken + "'");
+                eat(currentToken);
+            }
+        }
+
+        eat("<symbol> ; </symbol>");
+
+        outputFile.write("</classVarDec>\n");
     }
 
     /**
