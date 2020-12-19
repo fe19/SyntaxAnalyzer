@@ -10,9 +10,8 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/";
-        String fileOrDirectoryName = "Square";
-        File file = new File(pathName + fileOrDirectoryName);
+        String pathName = "test/ExpressionLessSquare/Main";
+        File file = new File(pathName);
 
         if (file.isDirectory()) {
             File[] files = file.listFiles();
@@ -21,7 +20,7 @@ public class JackAnalyzer {
                 if (f.getName().contains(".jack")){
                     FileReader fileReader = new FileReader(f);
                     String fileName = f.getName().substring(0, f.getName().length() - 5);
-                    FileWriter outputTokenizer = new FileWriter(pathName + fileOrDirectoryName + "/" + fileName + "T.xml");
+                    FileWriter outputTokenizer = new FileWriter(pathName + fileName + "T.xml");
                     JackTokenizer jackTokenizer = new JackTokenizer(fileReader, outputTokenizer);
                     jackTokenizer.advance();
                 }
