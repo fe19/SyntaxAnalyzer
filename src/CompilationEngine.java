@@ -29,7 +29,7 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a complete class. Grammar class: 'class' className '{' classVarDec* subroutingeDec* '}'
+     * Compiles a complete class. Grammar class: 'class' className '{' classVarDec* subroutineDec* '}'
      */
     public void compileClass() throws IOException {
 
@@ -50,7 +50,7 @@ public class CompilationEngine {
             compileClassVarDec();
         }
 
-        // (subroutingeDec)*
+        // (subroutineDec)*
         while (currentToken.equals("<keyword> constructor </keyword>") ||
                 currentToken.equals("<keyword> function </keyword>") || currentToken.equals("<keyword> method </keyword>")) {
             compileSubroutineDec();
@@ -182,26 +182,37 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a sequence of statements. Grammar statements: (ifStatement | whileStatement | letStatement)*
+     * Compiles a sequence of statements. Grammar statements: (ifStatement | whileStatement | letStatement | doStatement | returnStatement )*
      * Does not handle the enclosing {}
      */
     public void compileStatements() throws IOException {
         outputFile.write("<statements>\n");
 
-        switch (currentToken) {
-            case "<keyword> if </keyword>":
-                compileIf();
-                break;
-            case "<keyword> while </keyword>":
-                compileWhile();
-                break;
-            case "<keyword> let </keyword>":
-                compileLet();
-                break;
-            default:
-                System.out.println(ERROR_MESSAGE + "Invalid statement '" + currentToken + "'");
-                break;
+        while (currentToken.startsWith("<keyword> if </keyword>") || currentToken.startsWith("<keyword> while </keyword>")
+                || currentToken.startsWith("<keyword> let </keyword>") || currentToken.startsWith("<keyword> do </keyword>")
+                || currentToken.startsWith("<keyword> return </keyword>")) {
+            switch (currentToken) {
+                case "<keyword> if </keyword>":
+                    compileIf();
+                    break;
+                case "<keyword> while </keyword>":
+                    compileWhile();
+                    break;
+                case "<keyword> let </keyword>":
+                    compileLet();
+                    break;
+                case "<keyword> do </keyword>":
+                    compileDo();
+                    break;
+                case "<keyword> return </keyword>":
+                    compileReturn();
+                    break;
+                default:
+                    System.out.println(ERROR_MESSAGE + "Invalid statement '" + currentToken + "'");
+                    break;
+            }
         }
+
 
         outputFile.write("</statements>\n");
     }
@@ -258,21 +269,37 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a do statement.
+     * Compiles a return statement. Grammar returnStatement: 'return' (expression)? ';'
      */
-    public void compileDo() {
+    public void compileReturn() throws IOException {
+        outputFile.write("<returnStatement>\n");
 
+        eat("<keyword> return </keyword>");
+        if (currentToken.startsWith("<identifier>") || currentToken.startsWith("<integerConstant>")) {
+            compileExpression();
+        }
+        eat("<symbol> ; </symbol>");
+
+        outputFile.write("</returnStatement>\n");
     }
 
     /**
-     * Compiles a return statement.
+     * Compiles a do statement. Grammar doStatement: 'do' subroutineCall ';'
      */
-    public void compileReturn() {
+    public void compileDo() throws IOException {
+        outputFile.write("<doStatement>\n");
 
+        eat("<keyword> do </keyword>");
+
+        // TODO subroutineCall()
+
+        eat("<symbol> ; </symbol>");
+
+        outputFile.write("</doStatement>\n");
     }
 
     /**
-     * Compiles an expression. Grammar: expression: term (op term)?
+     * Compiles an expression. Grammar expression: term (op term)?
      */
     public void compileExpression() throws IOException {
         outputFile.write("<expression>\n");
@@ -284,14 +311,24 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a (possibly empty) comma-separated list of expressions.
+     * Compiles a list of expressions. Grammar expressionList: ( expression (',' expression)* )?
      */
-    public void compileExpressionList() {
+    public void compileExpressionList() throws IOException {
+        outputFile.write("<expressionList>\n");
+
+        // TODO do we need if for ()?
+        compileExpression();
+        while (currentToken.startsWith("<symbol> , </symbol>")) {
+            eat("<symbol> , </symbol>");
+            compileExpression();
+        }
+
+        outputFile.write("</expressionList>\n");
 
     }
 
     /**
-     * Compiles a term. Grammar: term: varName | constant
+     * Compiles a term. Grammar: term: integerConstant | stringConstant | varName
      * LL(2): If the current token is an identifier, the routine must distinguish between a variable, an array entry, or a subroutine call.
      * A single look-ahead token, which may be one of [, ( or . suffices to distinguish it.
      * Any other token is not part of this term and should not be advanced over.

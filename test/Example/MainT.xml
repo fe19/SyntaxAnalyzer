@@ -44,6 +44,22 @@
 <integerConstant> 500 </integerConstant>
 <symbol> ; </symbol>
 <symbol> } </symbol>
+<keyword> return </keyword>
+<symbol> ; </symbol>
+<symbol> } </symbol>
+<keyword> function </keyword>
+<keyword> void </keyword>
+<identifier> foo </identifier>
+<symbol> ( </symbol>
+<symbol> ) </symbol>
+<symbol> { </symbol>
+<keyword> let </keyword>
+<identifier> a </identifier>
+<symbol> = </symbol>
+<integerConstant> 100 </integerConstant>
+<symbol> ; </symbol>
+<keyword> return </keyword>
+<symbol> ; </symbol>
 <symbol> } </symbol>
 <symbol> } </symbol>
 </tokens>

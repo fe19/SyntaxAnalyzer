@@ -11,5 +11,13 @@ class Main {
         if ( var1 ) {
             let count = 500;
         }
+
+        // do foo();
+        return;
+    }
+
+    function void foo(){
+        let a = 100;
+        return;
     }
 }

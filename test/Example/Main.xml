@@ -71,6 +71,40 @@
 </statements>
 <symbol> } </symbol>
 </ifStatement>
+<returnStatement>
+<keyword> return </keyword>
+<symbol> ; </symbol>
+</returnStatement>
+</statements>
+<symbol> } </symbol>
+</subroutineBody>
+</subroutineDec>
+<subroutineDec>
+<keyword> function </keyword>
+<keyword> void </keyword>
+<identifier> foo </identifier>
+<symbol> ( </symbol>
+<parameterList>
+</parameterList>
+<symbol> ) </symbol>
+<subroutineBody>
+<symbol> { </symbol>
+<statements>
+<letStatement>
+<keyword> let </keyword>
+<identifier> a </identifier>
+<symbol> = </symbol>
+<expression>
+<term>
+<integerConstant> 100 </integerConstant>
+</term>
+</expression>
+<symbol> ; </symbol>
+</letStatement>
+<returnStatement>
+<keyword> return </keyword>
+<symbol> ; </symbol>
+</returnStatement>
 </statements>
 <symbol> } </symbol>
 </subroutineBody>
