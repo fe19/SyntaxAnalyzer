@@ -213,7 +213,6 @@ public class CompilationEngine {
             }
         }
 
-
         outputFile.write("</statements>\n");
     }
 
@@ -290,12 +289,31 @@ public class CompilationEngine {
         outputFile.write("<doStatement>\n");
 
         eat("<keyword> do </keyword>");
-
-        // TODO subroutineCall()
-
+        compileSubroutineCall();
         eat("<symbol> ; </symbol>");
 
         outputFile.write("</doStatement>\n");
+    }
+
+    /**
+     * Compiles a do statement. Grammar subroutineCall: subroutineName '(' expressionList ')' |
+     * (className | varName) '.' subroutineName '(' expressionList ')'
+     */
+    public void compileSubroutineCall() throws IOException {
+
+        // TODO look at next token to find out whether we need (className | varName) '.'
+        eatIdentifier(currentToken);
+        if (currentToken.equals("<symbol> . </symbol>")) {
+            eat("<symbol> . </symbol>");
+            eatIdentifier(currentToken);
+            eat("<symbol> ( </symbol>");
+            compileExpressionList();
+            eat("<symbol> ) </symbol>");
+        } else {
+            eat("<symbol> ( </symbol>");
+            compileExpressionList();
+            eat("<symbol> ) </symbol>");
+        }
     }
 
     /**
@@ -316,11 +334,12 @@ public class CompilationEngine {
     public void compileExpressionList() throws IOException {
         outputFile.write("<expressionList>\n");
 
-        // TODO do we need if for ()?
-        compileExpression();
-        while (currentToken.startsWith("<symbol> , </symbol>")) {
-            eat("<symbol> , </symbol>");
+        if (!currentToken.equals("<symbol> ) </symbol>")) {
             compileExpression();
+            while (currentToken.startsWith("<symbol> , </symbol>")) {
+                eat("<symbol> , </symbol>");
+                compileExpression();
+            }
         }
 
         outputFile.write("</expressionList>\n");

@@ -11,7 +11,7 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String pathName = "test/Example/";
+        String pathName = "test/Example/Main";
         File file = new File(pathName);
 
         if (file.isDirectory()) {

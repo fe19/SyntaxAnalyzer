@@ -12,7 +12,9 @@ class Main {
             let count = 500;
         }
 
-        // do foo();
+        do foo(5);
+        do Main.foo();
+
         return;
     }
 
