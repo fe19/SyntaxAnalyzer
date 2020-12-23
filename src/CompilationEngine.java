@@ -213,12 +213,13 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles an if statement. Grammar ifStatement: 'if' '(' expression ')' '{' statements '}'
+     * Compiles an if statement. Grammar ifStatement: 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
      * Possibly followed by an else clause.
      */
     public void compileIf() throws IOException {
         outputFile.write("<ifStatement>\n");
 
+        // if branch
         eat("<keyword> if </keyword>");
         eat("<symbol> ( </symbol>");
         compileExpression();
@@ -226,6 +227,14 @@ public class CompilationEngine {
         eat("<symbol> { </symbol>");
         compileStatements();
         eat("<symbol> } </symbol>");
+
+        // optional else branch
+        if (currentToken.equals("<keyword> else </keyword>")){
+            eat("<keyword> else </keyword>");
+            eat("<symbol> { </symbol>");
+            compileStatements();
+            eat("<symbol> } </symbol>");
+        }
 
         outputFile.write("</ifStatement>\n");
 

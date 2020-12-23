@@ -70,6 +70,22 @@
 </letStatement>
 </statements>
 <symbol> } </symbol>
+<keyword> else </keyword>
+<symbol> { </symbol>
+<statements>
+<letStatement>
+<keyword> let </keyword>
+<identifier> count </identifier>
+<symbol> = </symbol>
+<expression>
+<term>
+<integerConstant> 700 </integerConstant>
+</term>
+</expression>
+<symbol> ; </symbol>
+</letStatement>
+</statements>
+<symbol> } </symbol>
 </ifStatement>
 <doStatement>
 <keyword> do </keyword>

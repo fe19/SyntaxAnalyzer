@@ -44,6 +44,14 @@
 <integerConstant> 500 </integerConstant>
 <symbol> ; </symbol>
 <symbol> } </symbol>
+<keyword> else </keyword>
+<symbol> { </symbol>
+<keyword> let </keyword>
+<identifier> count </identifier>
+<symbol> = </symbol>
+<integerConstant> 700 </integerConstant>
+<symbol> ; </symbol>
+<symbol> } </symbol>
 <keyword> do </keyword>
 <identifier> foo </identifier>
 <symbol> ( </symbol>

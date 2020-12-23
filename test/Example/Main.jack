@@ -10,6 +10,8 @@ class Main {
 
         if ( var1 ) {
             let count = 500;
+        } else {
+            let count = 700;
         }
 
         do foo(5);
