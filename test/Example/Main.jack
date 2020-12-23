@@ -15,6 +15,17 @@ class Main {
         do foo(5);
         do Main.foo();
 
+        // terms: let x = term
+        let x = 5;      // integerConstant (= term)
+        let x = "st";   // stringConstant
+        let x = true;   // keywordConstant
+        let x = -5;     // unaryOp term
+        let x = (5);    // '(' expression ')'
+
+        let x = var1;   // varName (identifier)
+        let x = arr[5]; // varName '[' expression ']'
+        let x = Main.foo();  // subroutineCall
+
         return;
     }
 

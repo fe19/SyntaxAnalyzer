@@ -14,7 +14,7 @@ public class CompilationEngine {
 
     String currentToken;
 
-    private static final String ERROR_MESSAGE = "Parser Error: ";
+    private static final String ERROR_MESSAGE = "Parser Error. ";
 
     /**
      * Creates a new compilation engine with the given input and output.
@@ -291,6 +291,82 @@ public class CompilationEngine {
         outputFile.write("</doStatement>\n");
     }
 
+
+    /**
+     * Compiles an expression. Grammar expression: term (op term)?
+     */
+    public void compileExpression() throws IOException {
+        outputFile.write("<expression>\n");
+
+        compileTerm();
+        // (op term)*
+        if (currentToken.equals("<symbol> + </symbol>") || currentToken.equals("<symbol> - </symbol>") ||
+                currentToken.equals("<symbol> * </symbol>") || currentToken.equals("<symbol> / </symbol>") ||
+                currentToken.equals("<symbol> = </symbol>") || currentToken.equals("<symbol> | </symbol>") ||
+                currentToken.equals("<symbol> &lt; </symbol>") || currentToken.equals("<symbol> &gt; </symbol>") ||
+                currentToken.equals("<symbol> &amp; </symbol>")) {
+            eat(currentToken);
+            compileTerm();
+        }
+
+        outputFile.write("</expression>\n");
+    }
+
+    /**
+     * Compiles a term. Grammar term: integerConstant | stringConstant | keywordConstant | varName |
+     * varName '[' expression ']' | subroutineCall | '(' expression ')' | unaryOp term
+     * <p>
+     * LL(2): If the current token is an identifier, the routine must distinguish between a variable, an array entry, or a subroutine call.
+     * A single look-ahead token, which may be one of [, ( or . suffices to distinguish it.
+     * Any other token is not part of this term and should not be advanced over.
+     */
+    public void compileTerm() throws IOException {
+        outputFile.write("<term>\n");
+
+        // integerConstant || stringConstant || keyWordConstant
+        if (currentToken.startsWith("<integerConstant>") || currentToken.startsWith("<stringConstant>") ||
+                currentToken.equals("<keyword> true </keyword>") || currentToken.equals("<keyword> false </keyword>") ||
+                currentToken.equals("<keyword> null </keyword>") || currentToken.equals("<keyword> this </keyword>")) {
+            eat(currentToken);
+        }
+        // unaryOp
+        else if (currentToken.equals("<symbol> - </symbol>") || currentToken.equals("<symbol> ~ </symbol>")) {
+            eat(currentToken);
+            compileTerm();
+        } // '(' expression
+        else if (currentToken.equals("<symbol> ( </symbol>")) {
+            eat("<symbol> ( </symbol>");
+            compileExpression();
+            eat("<symbol> ) </symbol>");
+        } // subroutineCall
+        else if (currentToken.startsWith("<identifier>")) {
+            // identifier
+            eat(currentToken);
+            // identifier '[' expression ']'
+            if (currentToken.startsWith("<symbol> [ </symbol>")) {
+                eat("<symbol> [ </symbol>");
+                compileExpression();
+                eat("<symbol> ] </symbol>");
+            } // '(' expressionList ')'
+            else if (currentToken.startsWith("<symbol> ( </symbol>")) {
+                eat("<symbol> ( </symbol>");
+                compileExpressionList();
+                eat("<symbol> ) </symbol>");
+            } // '.' subroutineName '(' expressionList ')'
+            else if (currentToken.equals("<symbol> . </symbol>")) {
+                eat("<symbol> . </symbol>");
+                eat(currentToken);
+                eat("<symbol> ( </symbol>");
+                compileExpressionList();
+                eat("<symbol> ) </symbol>");
+            }
+        } else {
+            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken);
+        }
+
+        outputFile.write("</term>\n");
+    }
+
     /**
      * Compiles a do statement. Grammar subroutineCall: subroutineName '(' expressionList ')' |
      * (className | varName) '.' subroutineName '(' expressionList ')'
@@ -309,18 +385,6 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles an expression. Grammar expression: term (op term)?
-     */
-    public void compileExpression() throws IOException {
-        outputFile.write("<expression>\n");
-
-        compileTerm();
-        // TODO Optional part of expression
-
-        outputFile.write("</expression>\n");
-    }
-
-    /**
      * Compiles a list of expressions. Grammar expressionList: ( expression (',' expression)* )?
      */
     public void compileExpressionList() throws IOException {
@@ -336,23 +400,6 @@ public class CompilationEngine {
 
         outputFile.write("</expressionList>\n");
 
-    }
-
-    /**
-     * Compiles a term. Grammar: term: integerConstant | stringConstant | varName
-     * LL(2): If the current token is an identifier, the routine must distinguish between a variable, an array entry, or a subroutine call.
-     * A single look-ahead token, which may be one of [, ( or . suffices to distinguish it.
-     * Any other token is not part of this term and should not be advanced over.
-     */
-    public void compileTerm() throws IOException {
-        outputFile.write("<term>\n");
-
-        if (!currentToken.startsWith("<identifier>") && !currentToken.startsWith("<integerConstant>")) {
-            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "' must have <identifier> or <integerConstant> tag");
-        }
-        eat(currentToken);
-
-        outputFile.write("</term>\n");
     }
 
     /**
