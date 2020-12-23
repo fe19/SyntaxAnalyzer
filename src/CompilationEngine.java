@@ -290,9 +290,10 @@ public class CompilationEngine {
         outputFile.write("<returnStatement>\n");
 
         eat("<keyword> return </keyword>");
-        if (currentToken.startsWith("<identifier>") || currentToken.startsWith("<integerConstant>")) {
+        if (!currentToken.equals("<symbol> ; </symbol>")) {
             compileExpression();
         }
+
         eat("<symbol> ; </symbol>");
 
         outputFile.write("</returnStatement>\n");
