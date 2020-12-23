@@ -92,14 +92,12 @@ public class CompilationEngine {
         eat(currentToken);
 
         // (void | type)
-        if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
-                currentToken.equals("<keyword> char </keyword>") || currentToken.equals("<keyword> void </keyword>") ||
-                currentToken.startsWith("<identifier>")) {
-            eat(currentToken);
-        } else {
+        if (!currentToken.equals("<keyword> boolean </keyword>") && !currentToken.equals("<keyword> int </keyword>") &&
+                !currentToken.equals("<keyword> char </keyword>") && !currentToken.equals("<keyword> void </keyword>") &&
+                !currentToken.startsWith("<identifier>")) {
             System.out.println(ERROR_MESSAGE + "Invalid subroutine return type '" + currentToken + "'");
-            eat(currentToken);
         }
+        eat(currentToken);
 
         // subroutineName
         eatIdentifier(currentToken);
@@ -129,13 +127,11 @@ public class CompilationEngine {
                 // ','
                 eat(currentToken);
                 // type
-                if (currentToken.equals("<keyword> boolean </keyword>") || currentToken.equals("<keyword> int </keyword>") ||
-                        currentToken.equals("<keyword> char </keyword>") || currentToken.startsWith("<identifier>")) {
-                    eat(currentToken);
-                } else {
+                if (!currentToken.equals("<keyword> boolean </keyword>") && !currentToken.equals("<keyword> int </keyword>") &&
+                        !currentToken.equals("<keyword> char </keyword>") && !currentToken.startsWith("<identifier>")) {
                     System.out.println(ERROR_MESSAGE + "Invalid parameter list type '" + currentToken + "'");
-                    eat(currentToken);
                 }
+                eat(currentToken);
                 // varName
                 eatIdentifier(currentToken);
             }
@@ -306,14 +302,10 @@ public class CompilationEngine {
         if (currentToken.equals("<symbol> . </symbol>")) {
             eat("<symbol> . </symbol>");
             eatIdentifier(currentToken);
-            eat("<symbol> ( </symbol>");
-            compileExpressionList();
-            eat("<symbol> ) </symbol>");
-        } else {
-            eat("<symbol> ( </symbol>");
-            compileExpressionList();
-            eat("<symbol> ) </symbol>");
         }
+        eat("<symbol> ( </symbol>");
+        compileExpressionList();
+        eat("<symbol> ) </symbol>");
     }
 
     /**
@@ -355,12 +347,10 @@ public class CompilationEngine {
     public void compileTerm() throws IOException {
         outputFile.write("<term>\n");
 
-        if (currentToken.startsWith("<identifier>") || currentToken.startsWith("<integerConstant>")) {
-            eat(currentToken);
-        } else {
+        if (!currentToken.startsWith("<identifier>") && !currentToken.startsWith("<integerConstant>")) {
             System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken + "' must have <identifier> or <integerConstant> tag");
-            eat(currentToken);
         }
+        eat(currentToken);
 
         outputFile.write("</term>\n");
     }
@@ -371,11 +361,10 @@ public class CompilationEngine {
     private void eat(String token) throws IOException {
         if (currentToken.equals(token)) {
             outputFile.write(token + "\n");
-            currentToken = inputScanner.nextLine();
         } else {
             System.out.println(ERROR_MESSAGE + "Invalid token '" + currentToken + "' instead of '" + token + "'");
-            currentToken = inputScanner.nextLine();
         }
+        currentToken = inputScanner.nextLine();
     }
 
     /**
@@ -392,13 +381,11 @@ public class CompilationEngine {
      * Eats the current type and moves on to the next token.
      */
     private void eatType(String token) throws IOException {
-        if (token.equals("<keyword> boolean </keyword>") || token.equals("<keyword> int </keyword>") ||
-                token.equals("<keyword> char </keyword>") || token.startsWith("<identifier>")) {
-            eat(token);
-        } else {
+        if (!token.equals("<keyword> boolean </keyword>") && !token.equals("<keyword> int </keyword>") &&
+                !token.equals("<keyword> char </keyword>") && !token.startsWith("<identifier>")) {
             System.out.println(ERROR_MESSAGE + "Invalid type '" + token + "'");
-            eat(token);
         }
+        eat(token);
     }
 
 }
