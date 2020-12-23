@@ -249,13 +249,24 @@ public class CompilationEngine {
     }
 
     /**
-     * Compiles a let statement. Grammar letStatement: 'let' varName '=' expression ';'
+     * Compiles a let statement. Grammar letStatement: 'let' varName ('[' expression ']')? '=' expression ';'
      */
     public void compileLet() throws IOException {
         outputFile.write("<letStatement>\n");
 
         eat("<keyword> let </keyword>");
+        if (!currentToken.startsWith("<identifier>")){
+            System.out.println(ERROR_MESSAGE + "Invalid statement let '" + currentToken + "'");
+        }
         eatIdentifier(currentToken);
+
+        // ('[' expression ']')?
+        if (currentToken.equals("<symbol> [ </symbol>")){
+            eat("<symbol> [ </symbol>");
+            compileExpression();
+            eat("<symbol> ] </symbol>");
+        }
+
         eat("<symbol> = </symbol>");
         compileExpression();
         eat("<symbol> ; </symbol>");
@@ -361,7 +372,7 @@ public class CompilationEngine {
                 eat("<symbol> ) </symbol>");
             }
         } else {
-            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken);
+            System.out.println(ERROR_MESSAGE + "Invalid term '" + currentToken  + "'");
         }
 
         outputFile.write("</term>\n");

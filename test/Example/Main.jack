@@ -30,7 +30,10 @@ class Main {
     }
 
     function void foo(){
-        let a = 100;
+        var int i, j;
+        var Array a;
+
+        let a[i] = j;
         return;
     }
 }
